@@ -17,6 +17,24 @@ export class App extends Component {
     filter: '',
   };
 
+  componentDidMount() {
+    console.log('App Mount');
+
+    const contacts = localStorage.getItem('contacts');
+    const parsedContacts = JSON.parse(contacts);
+
+    if (parsedContacts) {
+      this.setState({ contacts: parsedContacts });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.contacts !== prevState.contacts)
+      console.log('оновилося поле');
+
+    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+  }
+
   addNewContact = data => {
     const { contacts } = this.state;
     const contactExist = contacts.some(
@@ -27,11 +45,11 @@ export class App extends Component {
 
     const newContact = { id: nanoid(), ...data };
 
-      this.setState(prevState => ({
-        contacts: [...prevState.contacts, newContact],
-      }));
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, newContact],
+    }));
   };
-  
+
   changeFilter = e => {
     this.setState({ filter: e.currentTarget.value });
   };
@@ -40,7 +58,7 @@ export class App extends Component {
     const { contacts, filter } = this.state;
     const normalizedFilter = filter.toLowerCase();
 
-    return contacts.filter(({name}) =>
+    return contacts.filter(({ name }) =>
       name.toLowerCase().includes(normalizedFilter)
     );
   };
@@ -51,36 +69,14 @@ export class App extends Component {
     }));
   };
 
-  componentDidMount() {
-    console.log('App Mount');
-
-    const contacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contacts);
-
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-  };
-
-  componentDidUpdate(prevProps, prevState) {
-    console.log('app');
-
-    if (this.state.contacts !== prevState.contacts)
-      console.log('оновилося поле');
-    
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-  };
-
   render() {
-console.log('app render')
-
     const { filter } = this.state;
     const visibleContacts = this.getVisibleContacts();
     return (
       <>
         <Container>
           <h1>Phonebook</h1>
-          <Form addNewContact={this.addNewContact } />
+          <Form addNewContact={this.addNewContact} />
           <h2>Contacts</h2>
           <Filter value={filter} onChange={this.changeFilter} />
           <ContactsList
